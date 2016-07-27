@@ -18,6 +18,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
+import android.widget.Toast;
 
 import org.json.JSONException;
 
@@ -28,7 +29,6 @@ public class MainActivity extends Activity {
     SurfaceHolder sholder;
     FrameLayout frame;
     Camera camera;
-    String CAM_DIR = "ShokujinCamera";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,19 +76,13 @@ public class MainActivity extends Activity {
             bitmap = Utils.getPortraitPhoto(bitmap);
             // 正方形に切り抜く
             bitmap = Utils.cropCenterSquare(bitmap);
+            Toast.makeText(getApplicationContext(), "カシャッッ", Toast.LENGTH_SHORT).show();
 
-            String base64jpg = Utils.base64encode(bitmap, true);
-            String teishokuNo = "??";
             try {
-                teishokuNo = new ShokujinClassifierAPI().classify(base64jpg);
-            } catch (JSONException e) {}
-
-            // 写真の中央に文字を追加する
-            bitmap = Utils.drawTextInPhoto(bitmap, teishokuNo, Color.WHITE);
-
-            // 写真をローカルに保存
-            String fname = "img"+Math.floor(Math.random()*10000)+".jpg";
-            Utils.savePhotoToLocalStorage(getApplicationContext(), bitmap, CAM_DIR, fname);
+                new ShokujinClassifierAPI(getApplicationContext(), bitmap).classify();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             camera.startPreview();
         }
     }

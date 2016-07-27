@@ -108,7 +108,6 @@ public class Utils {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fs);
             fs.flush();
             fs.close();
-            Toast.makeText(appContext, "カシャッッ", Toast.LENGTH_SHORT).show();
 
             // MediaScanner
             String[] paths = {filePath};
