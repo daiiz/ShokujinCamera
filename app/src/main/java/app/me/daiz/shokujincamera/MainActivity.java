@@ -7,12 +7,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
+import android.widget.Toast;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 public class MainActivity extends AppCompatActivity {
     SurfaceView   sview;
@@ -32,8 +36,33 @@ public class MainActivity extends AppCompatActivity {
         sholder = sview.getHolder();
         sholder.addCallback(new SurfaceHolderCallback());
 
+        Button btn = new Button(this);
+        btn.setText("カシャ");
+        btn.setLayoutParams(new LayoutParams(200, 150));
+        btn.setOnClickListener(new TakePhotoClickListener());
+
+        frame.addView(btn);
         frame.addView(sview);
-        //setContentView(R.layout.activity_main);
+
+    }
+
+    class TakePhotoClickListener implements View.OnClickListener {
+        @Override
+        public void onClick (View view) {
+            camera.takePicture(null, null, new TakePhoto());
+        }
+    }
+
+    class TakePhoto implements Camera.PictureCallback {
+        @Override
+        public void onPictureTaken(byte[] data, Camera camera) {
+            try {
+
+            } catch (Exception e) {
+            }
+            Toast.makeText(getApplicationContext(), "カシャッッッ", Toast.LENGTH_SHORT).show();
+            camera.startPreview();
+        }
     }
 
     class SurfaceHolderCallback implements SurfaceHolder.Callback {
