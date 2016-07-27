@@ -1,6 +1,5 @@
 package app.me.daiz.shokujincamera;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,9 +7,6 @@ import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.Size;
-import android.hardware.camera2.CameraAccessException;
-import android.media.MediaScannerConnection;
-import android.net.Uri;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -28,11 +24,11 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
-import java.util.logging.Logger;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     SurfaceView   sview;
     SurfaceHolder sholder;
+    FrameLayout frame;
     Camera camera;
     String CAM_DIR = "ShokujinCamera";
 
@@ -42,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        FrameLayout frame = new FrameLayout(this);
+        frame = new FrameLayout(this);
         setContentView(frame);
 
         sview = new SurfaceView(this);
@@ -80,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
             Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, null);
             int width = bitmap.getWidth();
             int height = bitmap.getHeight();
-            Log.d("w",""+width);
 
             Matrix matrix = new Matrix();
             matrix.postRotate(90);
@@ -131,6 +126,9 @@ public class MainActivity extends AppCompatActivity {
                 Camera.Size previewSize = Utils.setCameraPreviewSize(camera);
                 LayoutParams lp = Utils.getCameraLayoutViewSize(w, previewSize);
                 sview.setLayoutParams(lp);
+
+                Grid grid = new Grid(getApplicationContext(), lp.width, lp.height);
+                frame.addView(grid);
 
                 camera.startPreview();
 
