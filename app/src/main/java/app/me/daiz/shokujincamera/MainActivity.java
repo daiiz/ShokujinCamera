@@ -81,6 +81,12 @@ public class MainActivity extends Activity {
             matrix.postRotate(90);
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
 
+            // 正方形に切り抜く
+            width = bitmap.getWidth();
+            height = bitmap.getHeight();
+            int margin = (height - width) / 2;
+            bitmap = Bitmap.createBitmap(bitmap, 0, margin, width, width);
+
 
             String fname = "img"+Math.floor(Math.random()*10000)+".jpg";
             try {
