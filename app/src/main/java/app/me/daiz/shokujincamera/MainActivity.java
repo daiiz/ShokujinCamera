@@ -3,14 +3,12 @@ package app.me.daiz.shokujincamera;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.Size;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -19,10 +17,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
-import android.widget.Toast;
-
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.List;
 
 public class MainActivity extends Activity {
@@ -78,27 +72,11 @@ public class MainActivity extends Activity {
             bitmap = Utils.getPortraitPhoto(bitmap);
             // 正方形に切り抜く
             bitmap = Utils.cropCenterSquare(bitmap);
-
-
+            // 写真の中央に文字を追加する
+            bitmap = Utils.drawTextInPhoto(bitmap, "5", Color.WHITE);
+            // 写真をローカルに保存
             String fname = "img"+Math.floor(Math.random()*10000)+".jpg";
-            try {
-                File dir = new File(Environment.getExternalStorageDirectory(), CAM_DIR);
-                if (!dir.exists()) dir.mkdir();
-
-                File f = new File(dir, fname);
-                String filePath = f.getAbsolutePath();
-                FileOutputStream fs = new FileOutputStream(f);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fs);
-                fs.flush();
-                fs.close();
-                Toast.makeText(getApplicationContext(), "カシャッッ", Toast.LENGTH_SHORT).show();
-
-                // MediaScanner
-                String[] paths = {filePath};
-                Utils.autoMediaScan(getApplicationContext(), paths);
-
-            } catch (Exception e) {
-            }
+            Utils.savePhotoToLocalStorage(getApplicationContext(), bitmap, CAM_DIR, fname);
             camera.startPreview();
         }
     }

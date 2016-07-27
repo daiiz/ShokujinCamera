@@ -1,15 +1,21 @@
 package app.me.daiz.shokujincamera;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.hardware.Camera;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.List;
 
 public class Utils {
@@ -20,6 +26,23 @@ public class Utils {
         params.setPictureSize(previewSize.width, previewSize.height);
         cam.setParameters(params);
         return previewSize;
+    }
+
+    public static Bitmap drawTextInPhoto (Bitmap bitmap, String text, int color) {
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint();
+        paint.setColor(color);
+        paint.setTextSize(bitmap.getWidth() / 2);
+        paint.setAntiAlias(true);
+        float textWidth = paint.measureText(text);
+        Paint.FontMetrics fontMetrics = paint.getFontMetrics();
+        float x = bitmap.getWidth() / 2;
+        float y = bitmap.getHeight() / 2;
+        x -= textWidth / 2;
+        y -= (fontMetrics.ascent + fontMetrics.descent) / 2;
+        canvas.drawBitmap(bitmap, 0, 0, paint);
+        canvas.drawText(text, x, y, paint);
+        return bitmap;
     }
 
     // 縦長写真の中央正方形部分を切り出す．
@@ -59,5 +82,24 @@ public class Utils {
                     }
                 }
         );
+    }
+
+    public static void savePhotoToLocalStorage (Context appContext, Bitmap bitmap, String dirName, String fileName) {
+        try {
+            File dir = new File(Environment.getExternalStorageDirectory(), dirName);
+            if (!dir.exists()) dir.mkdir();
+
+            File f = new File(dir, fileName);
+            String filePath = f.getAbsolutePath();
+            FileOutputStream fs = new FileOutputStream(f);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fs);
+            fs.flush();
+            fs.close();
+            Toast.makeText(appContext, "カシャッッ", Toast.LENGTH_SHORT).show();
+
+            // MediaScanner
+            String[] paths = {filePath};
+            Utils.autoMediaScan(appContext, paths);
+        } catch (Exception e) {}
     }
 }
