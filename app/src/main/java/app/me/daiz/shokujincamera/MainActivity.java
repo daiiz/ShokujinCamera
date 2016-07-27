@@ -74,18 +74,10 @@ public class MainActivity extends Activity {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
             Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, null);
-            int width = bitmap.getWidth();
-            int height = bitmap.getHeight();
-
-            Matrix matrix = new Matrix();
-            matrix.postRotate(90);
-            bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
-
+            // landscapeモードで撮影されるので,portraitに変換する
+            bitmap = Utils.getPortraitPhoto(bitmap);
             // 正方形に切り抜く
-            width = bitmap.getWidth();
-            height = bitmap.getHeight();
-            int margin = (height - width) / 2;
-            bitmap = Bitmap.createBitmap(bitmap, 0, margin, width, width);
+            bitmap = Utils.cropCenterSquare(bitmap);
 
 
             String fname = "img"+Math.floor(Math.random()*10000)+".jpg";
