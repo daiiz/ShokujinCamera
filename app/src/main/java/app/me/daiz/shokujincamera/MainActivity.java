@@ -85,8 +85,8 @@ public class MainActivity extends AppCompatActivity {
                     getApplicationContext(), paths, mimeTypes, new MediaScannerConnection.OnScanCompletedListener() {
                         @Override
                         public void onScanCompleted(String path, Uri uri) {
-                            Log.d("スキャンしたファイルのパス", "-> path=" + path);
-                            Log.d("ContentProviderのURI", "-> uri=" + uri);
+                            Log.d("Scanned FilePath", "-> path=" + path);
+                            Log.d("ContentProvider URI", "-> uri=" + uri);
                         }
                     }
                 );
