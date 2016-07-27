@@ -10,10 +10,12 @@ import android.hardware.Camera;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
@@ -43,6 +45,17 @@ public class Utils {
         canvas.drawBitmap(bitmap, 0, 0, paint);
         canvas.drawText(text, x, y, paint);
         return bitmap;
+    }
+
+    // 画像をbase64エンコードする
+    public static String base64encode (Bitmap bitmap, boolean prefix) {
+        String p = "data:image/jpeg;base64,";
+        if (prefix == false) p = "";
+        Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.JPEG;
+        int quality = 100;
+        ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
+        bitmap.compress(compressFormat, quality, byteArrayOS);
+        return p + Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT);
     }
 
     // 縦長写真の中央正方形部分を切り出す．
