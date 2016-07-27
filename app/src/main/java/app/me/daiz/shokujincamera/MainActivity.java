@@ -1,8 +1,14 @@
 package app.me.daiz.shokujincamera;
 
+import android.app.ActionBar;
+import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.Size;
+import android.hardware.camera2.CameraAccessException;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
@@ -56,40 +62,47 @@ public class MainActivity extends AppCompatActivity {
     class TakePhotoClickListener implements View.OnClickListener {
         @Override
         public void onClick (View view) {
-            camera.takePicture(null, null, new TakePhoto());
+            camera.autoFocus(autoFocusCallback);
         }
+
+        public Camera.AutoFocusCallback autoFocusCallback = new Camera.AutoFocusCallback() {
+            @Override
+            public void onAutoFocus (boolean success, Camera camer) {
+                camera.takePicture(null, null, new TakePhoto());
+            }
+
+        };
     }
 
     class TakePhoto implements Camera.PictureCallback {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, null);
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            Log.d("w",""+width);
+
+            Matrix matrix = new Matrix();
+            matrix.postRotate(90);
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+
+
             String fname = "img"+Math.floor(Math.random()*10000)+".jpg";
             try {
                 File dir = new File(Environment.getExternalStorageDirectory(), CAM_DIR);
-                if (!dir.exists()) {
-                    Toast.makeText(getApplicationContext(), "Oops!", Toast.LENGTH_SHORT).show();
-                    dir.mkdir();
-                }
+                if (!dir.exists()) dir.mkdir();
 
                 File f = new File(dir, fname);
                 String filePath = f.getAbsolutePath();
                 FileOutputStream fs = new FileOutputStream(f);
-                fs.write(data);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fs);
+                fs.flush();
                 fs.close();
                 Toast.makeText(getApplicationContext(), "カシャッッ", Toast.LENGTH_SHORT).show();
 
                 // MediaScanner
                 String[] paths = {filePath};
-                String[] mimeTypes = {"image/jpeg"};
-                MediaScannerConnection.scanFile(
-                    getApplicationContext(), paths, mimeTypes, new MediaScannerConnection.OnScanCompletedListener() {
-                        @Override
-                        public void onScanCompleted(String path, Uri uri) {
-                            Log.d("Scanned FilePath", "-> path=" + path);
-                            Log.d("ContentProvider URI", "-> uri=" + uri);
-                        }
-                    }
-                );
+                Utils.autoMediaScan(getApplicationContext(), paths);
 
             } catch (Exception e) {
             }
@@ -111,18 +124,14 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void surfaceChanged(SurfaceHolder holder, int f, int w, int h) {
             try {
-                camera.setDisplayOrientation(0);
+                // プレビューの向きを調節
+                camera.setDisplayOrientation(90);
                 camera.setPreviewDisplay(sview.getHolder());
 
-                Parameters param = camera.getParameters();
-                List<Size> previewSizes = camera.getParameters().getSupportedPreviewSizes();
-                Size preview = previewSizes.get(0);
-                param.setPreviewSize(preview.width, preview.height);
-
-                LayoutParams lp = new LayoutParams(preview.width, preview.height);
+                Camera.Size previewSize = Utils.setCameraPreviewSize(camera);
+                LayoutParams lp = Utils.getCameraLayoutViewSize(w, previewSize);
                 sview.setLayoutParams(lp);
 
-                camera.setParameters(param);
                 camera.startPreview();
 
             } catch (Exception e) {
