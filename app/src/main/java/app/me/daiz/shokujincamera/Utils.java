@@ -46,7 +46,7 @@ public class Utils {
         canvas.drawText(text, x, y, paint);
 
         String appSign = "ShokujinCamera";
-        paint.setTextSize(50);
+        paint.setTextSize(40);
         textWidth = paint.measureText(appSign);
         fontMetrics = paint.getFontMetrics();
         x = bitmap.getWidth();
