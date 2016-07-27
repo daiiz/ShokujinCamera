@@ -3,8 +3,12 @@ package app.me.daiz.shokujincamera;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.Size;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -15,6 +19,8 @@ import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -22,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     SurfaceView   sview;
     SurfaceHolder sholder;
     Camera camera;
+    String CAM_DIR = "ShokujinCamera";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,11 +63,36 @@ public class MainActivity extends AppCompatActivity {
     class TakePhoto implements Camera.PictureCallback {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
+            String fname = "img"+Math.floor(Math.random()*10000)+".jpg";
             try {
+                File dir = new File(Environment.getExternalStorageDirectory(), CAM_DIR);
+                if (!dir.exists()) {
+                    Toast.makeText(getApplicationContext(), "Oops!", Toast.LENGTH_SHORT).show();
+                    dir.mkdir();
+                }
+
+                File f = new File(dir, fname);
+                String filePath = f.getAbsolutePath();
+                FileOutputStream fs = new FileOutputStream(f);
+                fs.write(data);
+                fs.close();
+                Toast.makeText(getApplicationContext(), "カシャッッ", Toast.LENGTH_SHORT).show();
+
+                // MediaScanner
+                String[] paths = {filePath};
+                String[] mimeTypes = {"image/jpeg"};
+                MediaScannerConnection.scanFile(
+                    getApplicationContext(), paths, mimeTypes, new MediaScannerConnection.OnScanCompletedListener() {
+                        @Override
+                        public void onScanCompleted(String path, Uri uri) {
+                            Log.d("スキャンしたファイルのパス", "-> path=" + path);
+                            Log.d("ContentProviderのURI", "-> uri=" + uri);
+                        }
+                    }
+                );
 
             } catch (Exception e) {
             }
-            Toast.makeText(getApplicationContext(), "カシャッッッ", Toast.LENGTH_SHORT).show();
             camera.startPreview();
         }
     }
