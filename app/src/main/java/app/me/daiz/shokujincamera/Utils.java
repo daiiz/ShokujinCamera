@@ -44,6 +44,17 @@ public class Utils {
         y -= (fontMetrics.ascent + fontMetrics.descent) / 2;
         canvas.drawBitmap(bitmap, 0, 0, paint);
         canvas.drawText(text, x, y, paint);
+
+        String appSign = "ShokujinCamera";
+        paint.setTextSize(50);
+        textWidth = paint.measureText(appSign);
+        fontMetrics = paint.getFontMetrics();
+        x = bitmap.getWidth();
+        y = bitmap.getHeight();
+        x -= (textWidth + 10);
+        y -= (fontMetrics.descent + 10);
+        canvas.drawText(appSign, x, y, paint);
+
         return bitmap;
     }
 
