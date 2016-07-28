@@ -68,6 +68,7 @@ public class ShokujinClassifierAPI {
                 Utils.savePhotoToLocalStorage(appContext, photo, CAM_DIR, fname);
                 Log.v("Congratulations!!!", teishokuNo);
                 Toast.makeText(appContext, "保存しました", Toast.LENGTH_LONG).show();
+                MainActivity.progress = false;
             }
         }.execute();
     }

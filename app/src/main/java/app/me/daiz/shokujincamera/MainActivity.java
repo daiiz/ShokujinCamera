@@ -29,6 +29,8 @@ public class MainActivity extends Activity {
     SurfaceHolder sholder;
     FrameLayout frame;
     Camera camera;
+    // 処理中はtrueになる
+    public static boolean progress = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +58,12 @@ public class MainActivity extends Activity {
     class TakePhotoClickListener implements View.OnClickListener {
         @Override
         public void onClick (View view) {
-            camera.autoFocus(autoFocusCallback);
+            if (!progress) {
+                progress = true;
+                camera.autoFocus(autoFocusCallback);
+            }else {
+                Toast.makeText(getApplicationContext(), "しばらく時間をおいてください", Toast.LENGTH_SHORT).show();
+            }
         }
 
         public Camera.AutoFocusCallback autoFocusCallback = new Camera.AutoFocusCallback() {
